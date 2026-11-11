@@ -2,6 +2,16 @@ from drafter import *
 from dataclasses import dataclass, field
 from chempy import Substance
 
+set_website_title("Chemistry Companion")
+set_site_information(
+    author="James Hicks",
+    description="Provide helpful and convinient information to chemistry students.",
+    sources="Thanks to the Drafter docs and my study group.",
+    planning="plan.pdf",
+    links=["https://github.com/your-username/your-repository"]
+)
+hide_debug_information()
+set_website_framed(False)
 
 # ==========================
 # Thermochemistry Data
