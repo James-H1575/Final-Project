@@ -66,7 +66,16 @@ class State:
 
 def make_species(formula: str, coefficient: int) -> Species:
     """
-    Creates a Species object using Chempy molar masses.
+    Creates a Species object from a chemical formula and
+    stoichiometric coefficient. Uses Chempy to determine
+    the molar mass of the compound.
+
+    Args:
+        formula: Chemical formula of the species.
+        coefficient: Stoichiometric coefficient in the reaction.
+
+    Returns:
+        A populated Species object.
     """
     return Species(
         formula=formula,
@@ -80,9 +89,14 @@ def make_species(formula: str, coefficient: int) -> Species:
 
 def parse_side(side: str) -> list:
     """
-    Parses one side of an equation.
-    Example:
-    2 H2 + O2
+    Parses one side of a balanced chemical equation and
+    converts each compound into a Species object.
+
+    Args:
+        side: Reactant or product side of the equation.
+
+    Returns:
+        A list of Species objects.
     """
 
     result = []
@@ -113,7 +127,17 @@ def parse_side(side: str) -> list:
 
 
 def find_limiting(state: State):
+    """
+    Determines the limiting reactant by comparing the
+    mole-to-coefficient ratio for each reactant.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        A tuple containing the limiting reactant formula
+        and the reaction extent.
+    """
     smallest_ratio = None
     limiting = ""
 
@@ -138,7 +162,16 @@ def find_limiting(state: State):
 
 
 def compute_heat(state: State) -> float:
+    """
+    Calculates the heat of reaction using standard heats
+    of formation stored in the DELTA_H dictionary.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        Heat of reaction in kilojoules (kJ).
+    """
     products_total = 0
     reactants_total = 0
 
@@ -169,7 +202,10 @@ def compute_heat(state: State) -> float:
 
 @route
 def index(state: State) -> Page:
-
+    """
+    Displays the home page and allows the user to enter
+    a balanced chemical equation for analysis.
+    """
     return Page(state, [
 
         "StoichioLab",
@@ -197,7 +233,19 @@ def parse_equation(
     state: State,
     equation: str
 ) -> Page:
+    """
+    Validates and parses the user-entered equation,
+    creates reactant and product Species objects,
+    and stores them in the application state.
 
+    Args:
+        state: Current application state.
+        equation: Balanced chemical equation entered
+                  by the user.
+
+    Returns:
+        The equation review page or an error page.
+    """
     state.error = ""
 
     if "->" not in equation:
@@ -234,7 +282,16 @@ def parse_equation(
 
 @route
 def equation_review(state: State) -> Page:
+    """
+    Displays the parsed reactants and products along
+    with their molar masses for user verification.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        An equation review page.
+    """
     contents = [
 
         "Equation Review",
@@ -283,7 +340,16 @@ def equation_review(state: State) -> Page:
 
 @route
 def masses(state: State) -> Page:
+    """
+    Displays input fields for reactant masses and
+    actual product yield.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        A page for entering mass data.
+    """
     species_names = ""
 
     for species in state.reactants:
@@ -333,7 +399,19 @@ def calculate(
     masses_input: str,
     actual_yield: str
 ) -> Page:
+    """
+    Performs stoichiometric calculations including
+    moles, limiting reactant determination, theoretical
+    yield, percent yield, and reaction thermochemistry.
 
+    Args:
+        state: Current application state.
+        masses_input: Comma-separated reactant masses.
+        actual_yield: Actual mass of product obtained.
+
+    Returns:
+        The results page containing all calculations.
+    """
     values = masses_input.split(",")
 
     if len(values) != len(state.reactants):
@@ -421,7 +499,16 @@ def calculate(
 
 @route
 def results(state: State) -> Page:
+    """
+    Displays stoichiometric and thermochemical results
+    for the analyzed reaction.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        A page showing calculation results.
+    """
     return Page(state, [
 
         "Results",
@@ -471,7 +558,16 @@ def results(state: State) -> Page:
 
 @route
 def compound_info(state: State) -> Page:
+    """
+    Displays detailed information about all reactants
+    and products including formulas and molar masses.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        A page containing species information.
+    """
     contents = [
 
         "Species Information",
@@ -517,7 +613,16 @@ def compound_info(state: State) -> Page:
 
 @route
 def reset(state: State) -> Page:
+    """
+    Resets the application state and starts a new
+    reaction analysis.
 
+    Args:
+        state: Current application state.
+
+    Returns:
+        The home page with cleared values.
+    """
     state.equation = ""
 
     state.reactants = []
