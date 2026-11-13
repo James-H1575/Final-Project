@@ -1,0 +1,459 @@
+image.png (Screenshot of plan from brainstorm activity)
+image.png (Screenshot of requirements)
+image.png (Screenshot of more requirements)
+Create an automated chemistry assistant that takes balanced reaction equations, starting reactant masses, and a harvested product amount to determine the limiting reactant, theoretical yield, and percent yield based on principles from Chemistry 2e (OpenStax) — Chapter 4: Chemical Reactions and Stoichiometry. To avoid manually compiling atomic mass tables or writing custom string tokenizers, use the chempy library to parse molecular formulas into exact molecular weights and verify reaction stoichiometry against compound data from the NIH PubChem Database. The program outputs an organized breakdown of limiting reagent status, product yields, and remaining masses of unreacted species. Also use the heat of the reaction to determine if it is exothermic or endothermic, and compute the heat flow per mole of the product. 
+
+Yes. This is actually a very strong final project idea because it naturally satisfies most of the Drafter requirements while also demonstrating real chemical-engineering knowledge.
+Project Concept
+Chemistry Reaction Assistant
+A web application that allows users to:
+Enter a balanced chemical reaction.
+Enter initial reactant masses.
+Enter an actual harvested product mass.
+Calculate:
+Molar masses (using Chempy)
+Moles of reactants
+Limiting reactant
+Excess reactants
+Theoretical yield
+Actual yield
+Percent yield
+Remaining reactant masses
+Heat of reaction (ΔH)
+Exothermic vs Endothermic classification
+Heat released/absorbed per mole of product
+The application can also save calculations to a reaction history log.
+How this Fits the Drafter Requirements
+Requirement: At Least 7 Routes
+Example routes:
+Route	Purpose
+/	Home
+/calculator	Main stoichiometry calculator
+/history	Previous calculations
+/reaction-details	Detailed calculation breakdown
+/heat-analysis	Thermochemistry page
+/reference	Stoichiometry formulas
+/about	Project explanation
+7 routes satisfied.
+Requirement: State Dataclass With 4+ Fields
+
+
+@dataclass
+class ReactionRecord:
+    equation: str
+    limiting_reactant: str
+    theoretical_yield: float
+    actual_yield: float
+    percent_yield: float
+Then:
+
+
+@dataclass
+class State:
+    reaction_history: list[ReactionRecord]
+    favorite_reaction: str
+    total_calculations: int
+    current_equation: str
+    dark_mode: bool
+Fields modified by routes:
+reaction_history
+favorite_reaction
+total_calculations
+current_equation
+dark_mode
+Requirement satisfied.
+Requirement: A Second Dataclass
+Already satisfied via:
+
+
+@dataclass
+class ReactionRecord:
+and
+
+
+@dataclass
+class State:
+Requirement: Dictionary/List of Class Instances
+
+
+reaction_history: list[ReactionRecord]
+Requirement satisfied.
+Requirement: At Least 3 Input Fields
+Calculator Page
+
+
+TextBox("Reaction Equation")
+ 
+TextBox("Reactant Masses")
+ 
+TextBox("Actual Product Mass")
+Or:
+
+
+TextArea()
+SelectBox()
+CheckBox()
+Requirement satisfied.
+Requirement: At Least 3 Meaningful If Statements
+Example:
+
+
+if percent_yield > 100:
+
+
+if delta_h < 0:
+
+
+if limiting_reactant == reagent:
+Requirement satisfied.
+Requirement: At Least One Loop
+Example:
+
+
+for compound in reaction.reactants:
+or
+
+
+for record in state.reaction_history:
+Requirement satisfied.
+Recommended Website Layout
+Home
+Explains:
+Stoichiometry
+Limiting reactants
+Yield calculations
+Thermochemistry
+Calculator
+Inputs:
+
+
+2H2 + O2 -> 2H2O
+ 
+Mass H2: 10 g
+Mass O2: 80 g
+ 
+Actual H2O obtained: 65 g
+Calculate button.
+Results
+Displays:
+
+
+Molar Masses
+ 
+H2 = 2.016 g/mol
+O2 = 31.998 g/mol
+H2O = 18.015 g/mol
+
+
+Available Moles
+ 
+H2 = 4.96 mol
+O2 = 2.50 mol
+
+
+Limiting Reactant
+ 
+O2
+
+
+Theoretical Yield
+ 
+5.00 mol H2O
+90.08 g H2O
+
+
+Actual Yield
+ 
+65 g
+
+
+Percent Yield
+ 
+72.2%
+
+
+Excess Reactant Remaining
+ 
+H2 = 4.92 g
+
+
+Heat Analysis
+ 
+ΔHrxn = -571.6 kJ
+ 
+Reaction Type:
+Exothermic
+ 
+Heat Released:
+-285.8 kJ/mol H2O
+Using Chempy
+Chempy handles:
+
+
+from chempy import Substance
+Molecular masses:
+
+
+mm = Substance.from_formula("H2SO4").mass
+No need for manual element tables.
+Reaction parsing:
+
+
+from chempy import Reaction
+ 
+rxn = Reaction.from_string(
+    "2 H2 + O2 -> 2 H2O"
+)
+Can verify stoichiometric coefficients automatically.
+PubChem Integration
+Use PubChem REST API to pull:
+molecular weight
+compound name
+formula
+Example:
+
+
+https://pubchem.ncbi.nlm.nih.gov/rest/pug/
+compound/name/H2O/property/
+MolecularWeight/JSON
+However:
+My recommendation
+For the class project:
+Use Chempy for all molar mass calculations and use PubChem only for:
+formula validation
+displaying compound metadata
+This is significantly more reliable than making every calculation dependent on a network request.
+Thermochemistry Component
+Create a database:
+
+
+DELTA_H_FORMATION = {
+    "H2O": -285.8,
+    "CO2": -393.5,
+    "CH4": -74.8,
+    "O2": 0,
+    "H2": 0
+}
+Then:
+Δ
+H
+r
+x
+n
+=
+∑
+n
+Δ
+H
+f
+(
+p
+r
+o
+d
+u
+c
+t
+s
+)
+−
+∑
+n
+Δ
+H
+f
+(
+r
+e
+a
+c
+t
+a
+n
+t
+s
+)
+ΔH 
+rxn
+​
+ =∑nΔH 
+f
+​
+ (products)−∑nΔH 
+f
+​
+ (reactants)
+Example:
+
+
+2H2 + O2 → 2H2O
+Δ
+H
+=
+2
+(
+−
+285.8
+)
+−
+0
+=
+−
+571.6
+  
+k
+J
+ΔH=2(−285.8)−0=−571.6kJ
+Since ΔH < 0
+
+
+Exothermic
+Heat per mole product:
+−
+571.6
+2
+=
+−
+285.8
+  
+k
+J
+/
+m
+o
+l
+2
+−571.6
+​
+ =−285.8kJ/mol
+Features That Would Impress the TA
+Reaction History
+Store all previous calculations.
+
+
+reaction_history.append(record)
+Favorite Reactions
+Save common reactions.
+
+
+CO2 + H2O -> H2CO3
+Yield Graphs
+Display:
+theoretical vs actual yield
+percent yield trends
+Chemistry Help Page
+Reference formulas:
+n
+=
+m
+M
+n= 
+M
+m
+​
+ 
+%
+Y
+i
+e
+l
+d
+=
+A
+c
+t
+u
+a
+l
+T
+h
+e
+o
+r
+e
+t
+i
+c
+a
+l
+×
+100
+%Yield= 
+Theoretical
+Actual
+​
+ ×100
+Suggested Project Title
+StoichioLab: Automated Stoichiometry and Reaction Yield Analyzer
+or
+ChemAssist: Chemical Reaction Yield & Thermochemistry Calculator
+or
+ReactionIQ: Limiting Reagent and Yield Analysis Tool
+Of the three, StoichioLab is probably the strongest fit for a BCHE student because it sounds like an actual chemical engineering analysis platform rather than just a homework calculator.
+
+
+
+
+
+i need the entire code put together
+Drafter Web Coder
+Drafter Web Coder
+Since this is a full-semester Drafter project, I would not recommend generating a single 1,500+ line file. A cleaner solution is a multi-file structure that satisfies your rubric and is much easier to debug and grade.
+Before I write the entire implementation, I need one critical piece of information:
+Which version of Drafter are you using?
+Your course's Drafter framework can vary significantly. I need to know:
+The exact main.py starter file you were given, or
+Your current project structure, or
+The contents/signature of:
+State dataclass
+route decorators
+Page, TextBox, Button, etc. imports
+The reason is that Drafter at different schools/course versions uses different APIs, and if I generate the entire site without matching your Drafter version, it likely won't run, which the rubric explicitly penalizes.
+Please upload either:
+your current main.py, or
+a screenshot of the starter code, or
+the GitHub template repository link
+and I will generate:
+✅ Complete main.py
+✅ 7+ routes
+✅ 2 dataclasses
+✅ Reaction history system
+✅ Chempy integration
+✅ PubChem API integration
+✅ Limiting reagent calculator
+✅ Theoretical yield calculator
+✅ Percent yield calculator
+✅ Excess reactant calculator
+✅ ΔH reaction calculator
+✅ Exothermic/endothermic analysis
+✅ Unit-test examples
+✅ Documentation strings
+✅ Type hints
+✅ Code organized to meet the rubric shown in your screenshots
+all as a single ready-to-submit project.
+
+
+
+
+
+Use a standard Drafter template and provide the complete code
+Drafter Web Coder
+Drafter Web Coder
+Below is a single-file Drafter project that satisfies your rubric requirements while implementing the chemistry assistant.
+Features
+✅ 7 routes
+✅ 2 dataclasses
+✅ Reaction history list
+✅ Limiting reactant calculations
+✅ Theoretical yield
+✅ Percent yield
+✅ Excess reactant remaining
+✅ Heat of reaction analysis
+✅ Exothermic / Endothermic classification
+✅ Uses Chempy for molecular weights and reaction parsing
+✅ Multiple input fields
+✅ Loop over reaction history
+✅ Multiple meaningful if-statements
+✅ Type hints and docstrings
+Install Requirements
+AI-generated content may be incorrect
