@@ -2,6 +2,8 @@ from drafter import *
 from dataclasses import dataclass, field
 from chempy import Substance
 
+set_website_style("sakura")
+
 set_website_title("Chemistry Companion")
 set_site_information(
     author="James Hicks",
