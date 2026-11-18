@@ -213,7 +213,7 @@ def index(state: State) -> Page:
         "StoichioLab",
         "\n",
 
-        "Enter a balanced reaction:",
+        "Enter a balanced reaction (Must place spaces between each coefficient and species, as well as around the arrow '->'):",
         TextBox(
             "equation",
             state.equation
